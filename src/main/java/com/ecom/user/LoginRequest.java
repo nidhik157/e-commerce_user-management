@@ -1,4 +1,4 @@
-package com.example.user;
+package com.ecom.user;
 
 
 import javax.validation.constraints.NotBlank;
