@@ -9,14 +9,6 @@ public class ChangePasswordRequest {
     @NotBlank(message = "New password is required")
     private String newPassword;
     
-    @NotBlank(message = "Email is required")
-    private String email;
-
-    // Getters and setters
-    public String getEmail() {
-    	return email;
-    }
-    
     public String getOldPassword() {
         return oldPassword;
     }

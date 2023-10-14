@@ -2,6 +2,8 @@ package com.ecom.user;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 import javax.validation.Valid;
 
 @RestController
@@ -15,9 +17,9 @@ public class UserController {
 
     // User registration endpoint
     @PostMapping("/signup")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody User user) {
+    public ResponseEntity<String> registerUser( @RequestBody @Valid SignupRequest signupRequest) {
         try {
-            String registerUser=userService.registerUser(user);
+            String registerUser=userService.registerUser(signupRequest);
             System.out.println(registerUser);
             return ResponseEntity.ok(registerUser);
         } catch (Exception e) {
@@ -65,21 +67,44 @@ public class UserController {
 
     // Update user information endpoint
     @PutMapping("/update")
-    public ResponseEntity<?> updateUser(@Valid @RequestBody User user) {
+    public ResponseEntity<?> updateUser(
+            @RequestHeader(name = "Authorization") String token,
+            @RequestBody User updatedUser
+        ){
         try {
-            User updatedUser = userService.updateUser(user);
-            return ResponseEntity.ok(updatedUser);
+        	Long userId = userService.getUserIdFromToken(token,"main");
+           Optional<User> existingUserOptional = userService.findById(userId); // Assuming you have a method to find the existing user by ID
+             System.out.println(existingUserOptional);
+           if (existingUserOptional.isEmpty()) {
+               return ResponseEntity.notFound().build();
+           }
+           
+           User existingUser = existingUserOptional.get();
+
+            // Check and update only allowed fields
+            if (updatedUser.getEmail() != null) {
+                existingUser.setEmail(updatedUser.getEmail());
+            }
+            if (updatedUser.getName() != null) {
+                existingUser.setName(updatedUser.getName());
+            }
+
+            User savedUser = userService.updateUser(existingUser);
+            return ResponseEntity.ok(savedUser);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error updating user information: " + e.getMessage());
         }
     }
 
+
     // Change password endpoint
     @PutMapping("/change-password")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+    public ResponseEntity<?> changePassword( @RequestHeader(name = "Authorization") String token, @RequestBody ChangePasswordRequest request) {
         try {
-            User user = userService.changePassword(request.getEmail(),request.getOldPassword(), request.getNewPassword());
-            return ResponseEntity.ok("Password changed successfully for user: " + user.getId());
+        	Long userId = userService.getUserIdFromToken(token,"main");
+        	
+           Object response=userService.changePassword(userId,request.getOldPassword(), request.getNewPassword());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error changing password: " + e.getMessage());
         }
@@ -89,10 +114,23 @@ public class UserController {
     @PutMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
         try {
-            userService.forgotPassword(request.getEmail());
-            return ResponseEntity.ok("Forgot password request processed successfully.");
+           String response= userService.forgotPassword(request.getEmail());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error processing forgot password request: " + e.getMessage());
         }
+    }
+    
+    //Reset password request endpoint
+    @PutMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestHeader(name = "Authorization") String token,@RequestBody ResetPasswordRequest request){
+    	try {
+    		Long userId = userService.getUserIdFromToken(token,"resetPass");
+    		Object response=userService.resetPassword(userId,request.getNewPassword());
+    		return ResponseEntity.ok(response);
+    	}
+    	catch(Exception e) {
+    		return ResponseEntity.badRequest().body("Error setting password: "+e.getMessage());
+    	}
     }
 }

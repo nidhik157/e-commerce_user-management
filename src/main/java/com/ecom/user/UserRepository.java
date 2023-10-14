@@ -1,5 +1,7 @@
 package com.ecom.user;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,5 +11,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // Example of a custom query method (find a user by email)
     User findByEmail(String email);
+    Optional<User> findById(Long id);
 
 }

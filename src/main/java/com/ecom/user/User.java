@@ -17,9 +17,6 @@ public class User {
     @Column(nullable = false) // Add constraints for name
     private String name;
 
-    @Column(name = "phone_number") // Specify the column name explicitly
-    private String phoneNumber;
-
     @Column(nullable = false) // Add constraints for role
     private String role;
 
@@ -40,7 +37,6 @@ public class User {
     public User(String email, String name, String phoneNumber, String role, String password, Date passwordChangedAt, Boolean isDeleted) {
         this.email = email;
         this.name = name;
-        this.phoneNumber = phoneNumber;
         this.role = role;
         this.password = password;
         this.passwordChangedAt= passwordChangedAt;
@@ -70,14 +66,6 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
     }
 
     public String getRole() {
