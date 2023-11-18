@@ -2,6 +2,8 @@ package com.ecom.user;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -17,6 +19,7 @@ public class UserController {
 
     // User registration endpoint
     @PostMapping("/signup")
+    
     public ResponseEntity<String> registerUser( @RequestBody @Valid SignupRequest signupRequest) {
         try {
             String registerUser=userService.registerUser(signupRequest);
@@ -40,8 +43,11 @@ public class UserController {
 
     // Fetch user details by email endpoint
     @GetMapping("/{email}")
-    public ResponseEntity<?> getUserByEmail(@PathVariable String email) {
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<?> getUserByEmail( @RequestHeader(name = "Authorization") String token,@PathVariable String email) {
         try {
+        	Long userId=userService.getUserIdFromToken(token, "main");
+        	if(userId==null) {return ResponseEntity.notFound().build();}
             User user = userService.getUserByEmail(email);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
@@ -51,8 +57,11 @@ public class UserController {
 
     // Fetch all user details endpoint
     @GetMapping("/all")
-    public ResponseEntity<?> getAllUsers(@RequestParam(required = false) String email) {
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<?> getAllUsers( @RequestHeader(name = "Authorization") String token, @RequestParam(required = false) String email) {
         try {
+        	Long userId=userService.getUserIdFromToken(token, "main");
+        	if(userId==null) {return ResponseEntity.notFound().build();}
             if (email != null) {
                 User user = userService.getUserByEmail(email);
                 return ResponseEntity.ok(user);
@@ -67,6 +76,7 @@ public class UserController {
 
     // Update user information endpoint
     @PutMapping("/update")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<?> updateUser(
             @RequestHeader(name = "Authorization") String token,
             @RequestBody User updatedUser
@@ -99,6 +109,7 @@ public class UserController {
 
     // Change password endpoint
     @PutMapping("/change-password")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<?> changePassword( @RequestHeader(name = "Authorization") String token, @RequestBody ChangePasswordRequest request) {
         try {
         	Long userId = userService.getUserIdFromToken(token,"main");
@@ -123,6 +134,7 @@ public class UserController {
     
     //Reset password request endpoint
     @PutMapping("/reset-password")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<?> resetPassword(@RequestHeader(name = "Authorization") String token,@RequestBody ResetPasswordRequest request){
     	try {
     		Long userId = userService.getUserIdFromToken(token,"resetPass");
