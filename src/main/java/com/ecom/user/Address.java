@@ -1,35 +1,67 @@
 package com.ecom.user;
 
+import javax.validation.constraints.NotBlank;
+
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "Addresses")
 public class Address {
-    @Id
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name = "user_id") // Assuming user_id is the foreign key column
+    private Long userId; // Reference to the User entity's ID
 
+    // Other fields
+    @NotBlank(message = "name is required")
+    @Column(nullable = false)
     private String name;
-    private String phoneNumber;
-    private String country;
-    private String state;
-    private String city;
-    private String flatNo;
-    private String streetAddress;
-    private String pincode;
-    private String landmark;
-    private boolean isActive;
 
+    @NotBlank(message = "Phone number is required")
+    @Column(nullable = false)
+    private String phoneNumber;
+    
+    @NotBlank(message = "Country is required")
+    @Column(nullable = false)
+    private String country;
+
+    @NotBlank(message = "State is required")
+    @Column(nullable = false)
+    private String state;
+
+    @NotBlank(message = "City is required")
+    @Column(nullable = false)
+    private String city;
+
+    @NotBlank(message = "Flat no is required")
+    @Column(nullable = false)
+    private String flatNo;
+
+    @NotBlank(message = "Street Address is required")
+    @Column(nullable = false)
+    private String streetAddress;
+
+    @NotBlank(message = "Pincode is required")
+    @Column(nullable = false)
+    private Number pincode;
+
+    @NotBlank(message = "Landmark is required")
+    @Column(nullable = true)
+    private String landmark;
+
+    @Column(nullable = false)
+    private Boolean isDefault;
+
+    // Constructors
     public Address() {
         // Default constructor
     }
 
-    public Address(User user, String name, String phoneNumber, String country, String state, String city, String flatNo, String streetAddress, String pincode, String landmark, Boolean isActive) {
-        this.user = user;
+    public Address(Long userId, String name, String phoneNumber, String country, String state, String city,
+                   String flatNo, String streetAddress, Number pincode, String landmark, Boolean isDefault) {
+        this.userId = userId;
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.country = country;
@@ -39,9 +71,10 @@ public class Address {
         this.streetAddress = streetAddress;
         this.pincode = pincode;
         this.landmark = landmark;
-        this.isActive=isActive;
+        this.isDefault = isDefault;
     }
 
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -50,12 +83,12 @@ public class Address {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getName() {
@@ -114,11 +147,11 @@ public class Address {
         this.streetAddress = streetAddress;
     }
 
-    public String getPincode() {
+    public Number getPincode() {
         return pincode;
     }
 
-    public void setPincode(String pincode) {
+    public void setPincode(Number pincode) {
         this.pincode = pincode;
     }
 
@@ -130,11 +163,11 @@ public class Address {
         this.landmark = landmark;
     }
     
-    public boolean getIsActive() {
-    	return isActive;
+    public boolean getIsDefault() {
+    	return isDefault;
     }
     
-    public void setIsActive(Boolean isActive) {
-    	this.isActive=isActive;
+    public void setIsDefault(Boolean isDefault) {
+    	this.isDefault=isDefault;
     }
 }
